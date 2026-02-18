@@ -10,4 +10,10 @@ CREATE TABLE users (
 	CONSTRAINT PK_user PRIMARY KEY (user_id)
 );
 
+CREATE TABLE products (
+    item_id serial PRIMARY KEY,
+    item_name VARCHAR(255),
+    type
+);
+
 COMMIT TRANSACTION;
