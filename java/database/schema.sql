@@ -11,9 +11,12 @@ CREATE TABLE users (
 );
 
 CREATE TABLE products (
-    item_id serial PRIMARY KEY,
-    item_name VARCHAR(255),
-    type
+    product_id SERIAL PRIMARY KEY,
+    sku SERIAL,
+    name varchar(255) NOT NULL,
+    category varchar(255) NOT NULL,
+    default_bottle_size int NOT NULL,
+
 );
 
 COMMIT TRANSACTION;
