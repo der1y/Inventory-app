@@ -11,12 +11,21 @@ CREATE TABLE users (
 );
 
 CREATE TABLE products (
-    product_id SERIAL PRIMARY KEY,
-    sku SERIAL,
-    name varchar(255) NOT NULL,
-    category varchar(255) NOT NULL,
-    default_bottle_size int NOT NULL,
-
+    product_id SERIAL,
+    sku varchar(50) UNIQUE,
+    name varchar(50) NOT NULL,
+    category_id SERIAL NOT NULL UNIQUE, --Need to make category table
+    default_bottle_ml int NOT NULL,
+    is_active boolean,
+    CONSTRAINT PK_product PRIMARY KEY (product_id)
 );
+
+CREATE TABLE product_purchase (
+    purchase_id SERIAL,
+    product_id int NOT NULL,
+    vendor_id int NOT NULL -- Need to make vendor table
+    purchased_at TIMESTAMP,
+
+)
 
 COMMIT TRANSACTION;
