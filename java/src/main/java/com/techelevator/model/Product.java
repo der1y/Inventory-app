@@ -5,15 +5,15 @@ public class Product {
     private int id;
     private String sku;
     private String name;
-    private int category_id;
+    private int categoryId;
     private int default_bottle_ml;
     private boolean is_active;
 
-    public Product(int id, String sku, String name, int category_id, int default_bottle_ml, boolean is_active) {
+    public Product(int id, String sku, String name, int categoryId, int default_bottle_ml, boolean is_active) {
         this.id = id;
         this.sku = sku;
         this.name = name;
-        this.category_id = category_id;
+        this.categoryId = categoryId;
         this.default_bottle_ml = default_bottle_ml;
         this.is_active = is_active;
     }
@@ -42,12 +42,12 @@ public class Product {
         this.name = name;
     }
 
-    public int getCategory_id() {
-        return category_id;
+    public int getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory_id(int category_id) {
-        this.category_id = category_id;
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 
     public int getDefault_bottle_ml() {
@@ -72,7 +72,7 @@ public class Product {
                 "id=" + id +
                 ", sku='" + sku + '\'' +
                 ", name='" + name + '\'' +
-                ", category_id=" + category_id +
+                ", categoryId=" + categoryId +
                 ", default_bottle_ml=" + default_bottle_ml +
                 ", is_active=" + is_active +
                 '}';

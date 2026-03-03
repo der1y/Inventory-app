@@ -5,18 +5,18 @@ import java.sql.Timestamp;
 public class Inventory {
 
     private int id;
-    private int product_id;
-    private int location_id;
-    private int purchase_id;
+    private int productId;
+    private int locationId;
+    private int purchaseId;
     private Timestamp received_at;
     private int full_ml;
     private int remaining_ml;
 
-    public Inventory(int id, int product_id, int location_id, int purchase_id, Timestamp received_at, int full_ml, int remaining_ml) {
+    public Inventory(int id, int productId, int locationId, int purchaseId, Timestamp received_at, int full_ml, int remaining_ml) {
         this.id = id;
-        this.product_id = product_id;
-        this.location_id = location_id;
-        this.purchase_id = purchase_id;
+        this.productId = productId;
+        this.locationId = locationId;
+        this.purchaseId = purchaseId;
         this.received_at = received_at;
         this.full_ml = full_ml;
         this.remaining_ml = remaining_ml;
@@ -30,28 +30,28 @@ public class Inventory {
         this.id = id;
     }
 
-    public int getProduct_id() {
-        return product_id;
+    public int getProductId() {
+        return productId;
     }
 
-    public void setProduct_id(int product_id) {
-        this.product_id = product_id;
+    public void setProductId(int productId) {
+        this.productId = productId;
     }
 
-    public int getLocation_id() {
-        return location_id;
+    public int getLocationId() {
+        return locationId;
     }
 
-    public void setLocation_id(int location_id) {
-        this.location_id = location_id;
+    public void setLocationId(int locationId) {
+        this.locationId = locationId;
     }
 
-    public int getPurchase_id() {
-        return purchase_id;
+    public int getPurchaseId() {
+        return purchaseId;
     }
 
-    public void setPurchase_id(int purchase_id) {
-        this.purchase_id = purchase_id;
+    public void setPurchaseId(int purchaseId) {
+        this.purchaseId = purchaseId;
     }
 
     public Timestamp getReceived_at() {
@@ -82,9 +82,9 @@ public class Inventory {
     public String toString() {
         return "Inventory{" +
                 "id=" + id +
-                ", product_id=" + product_id +
-                ", location_id=" + location_id +
-                ", purchase_id=" + purchase_id +
+                ", productId=" + productId +
+                ", locationId=" + locationId +
+                ", purchaseId=" + purchaseId +
                 ", received_at=" + received_at +
                 ", full_ml=" + full_ml +
                 ", remaining_ml=" + remaining_ml +
