@@ -30,12 +30,14 @@ CREATE TABLE categories
 CREATE TABLE products
 (
     product_id        SERIAL,
-    sku               varchar(50) UNIQUE,
+    upc               varchar(14) UNIQUE,
     name              varchar(50) NOT NULL,
     category_id       int         NOT NULL,
     default_bottle_ml int         NOT NULL,
     is_active         boolean     NOT NULL DEFAULT true,
     CONSTRAINT PK_product PRIMARY KEY (product_id),
+    CONSTRAINT chk_products_upc_digits
+        CHECK (upc IS NULL OR upc ~ '^[0-9]{12,14}$'),
     CONSTRAINT FK_category_product FOREIGN KEY (category_id) REFERENCES categories (category_id)
 );
 
