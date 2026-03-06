@@ -2,6 +2,7 @@ package com.techelevator.dao;
 
 import com.techelevator.exception.DaoException;
 import com.techelevator.model.Product;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +17,8 @@ import java.util.List;
 public class JdbcProductDao implements ProductDao {
 
     private final JdbcTemplate jdbcTemplate;
+
+    private final String ERROR_MESSAGE = "Unable to connect to server or database";
 
     public JdbcProductDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -42,7 +45,7 @@ public class JdbcProductDao implements ProductDao {
             product.setUpc(upcToSave);
             return product;
         } catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database", e);
+            throw new DaoException(ERROR_MESSAGE, e);
         } catch (DataIntegrityViolationException e) {
             throw new DaoException("Data integrity violation while creating product", e);
         }
@@ -51,12 +54,16 @@ public class JdbcProductDao implements ProductDao {
     @Override
     public Product getProductById(int productId) {
         String sql = "SELECT * FROM products WHERE product_id = ?";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, productId);
+        try {
+            SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, productId);
 
-        if (sqlRowSet.next()) {
-            return mapRowToProduct(sqlRowSet);
+            if (sqlRowSet.next()) {
+                return mapRowToProduct(sqlRowSet);
+            }
+            return null;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
         }
-        return null;
     }
 
     @Override
@@ -64,34 +71,68 @@ public class JdbcProductDao implements ProductDao {
         List<Product> products = new ArrayList<>();
 
         String sql = "SELECT * FROM products";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
 
-        while (results.next()) {
-            products.add(mapRowToProduct(results));
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+
+            while (results.next()) {
+                products.add(mapRowToProduct(results));
+            }
+
+            return products;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
         }
-
-        return  products;
     }
 
     @Override
     public Product getProductByName(String name) {
         String sql = "SELECT * FROM products WHERE name = ?";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, name);
 
-        while (results.next()) {
-            return mapRowToProduct(results);
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, name);
+
+            if (results.next()) {
+                return mapRowToProduct(results);
+            }
+            return null;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
         }
 
     }
 
     @Override
-    public Product getProductByCategory(int categoryId) {
-        return null;
+    public List<Product> getProductsByCategory(int categoryId) {
+        List<Product> productsByCategory = new ArrayList<>();
+
+        String sql = "SELECT * FROM products WHERE category_id = ?";
+
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, categoryId);
+
+            while (results.next()) {
+                productsByCategory.add(mapRowToProduct(results));
+            }
+            return productsByCategory;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE,e);
+        }
+
+
     }
 
     @Override
     public Product updateProduct(Product product) {
-        return null;
+        Product updatedProduct;
+
+        String updateProductSQL = "UPDATE products " +
+                "SET upc = ?, name = ?, category_id = ?, default_bottle_ml = ?, is_active = ? " +
+                "WHERE product_id = ?";
+
+        try {
+            int udatedRows = jdbcTemplate.update(updateProductSQL, product.getUpc(), product.getName(), product.getCategoryId(), product.getDefault_bottle_ml(), product.isIs_active());
+        }
     }
 
     @Override
