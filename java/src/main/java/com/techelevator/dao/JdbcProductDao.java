@@ -99,7 +99,6 @@ public class JdbcProductDao implements ProductDao {
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException(ERROR_MESSAGE, e);
         }
-
     }
 
     @Override
@@ -116,10 +115,30 @@ public class JdbcProductDao implements ProductDao {
             }
             return productsByCategory;
         } catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException(ERROR_MESSAGE,e);
+            throw new DaoException(ERROR_MESSAGE, e);
         }
+    }
 
+    @Override
+    public List<Product> getProductsByVendor(int vendorId) {
+        List<Product> productsByVendor = new ArrayList<>();
 
+        String sql = "SELECT * FROM vendor_product vp " +
+                "JOIN products p ON p.product_id = vp.product_id " +
+                "WHERE vendor_id = ? " +
+                "ORDER BY name;";
+
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, vendorId);
+
+            while (results.next()) {
+                productsByVendor.add(mapRowToProduct(results));
+            }
+
+            return productsByVendor;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
+        }
     }
 
     @Override
@@ -131,13 +150,36 @@ public class JdbcProductDao implements ProductDao {
                 "WHERE product_id = ?";
 
         try {
-            int udatedRows = jdbcTemplate.update(updateProductSQL, product.getUpc(), product.getName(), product.getCategoryId(), product.getDefault_bottle_ml(), product.isIs_active());
+            int updatedRows = jdbcTemplate.update(updateProductSQL, product.getUpc(), product.getName(),
+                    product.getCategoryId(), product.getDefault_bottle_ml(), product.isIs_active());
+            if (updatedRows == 0) {
+                throw new DaoException("Zero rows affected, expected at least one");
+            }
+
+            updatedProduct = getProductById(product.getId());
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation while updating product", e);
         }
+        return updatedProduct;
     }
 
     @Override
     public int deleteProductById(int productId) {
-        return 0;
+        String deleteProduct = "DELETE FROM products WHERE product_id = ?";
+        int deletedRows;
+        try {
+            deletedRows = jdbcTemplate.update(deleteProduct, productId);
+            if (deletedRows == 0) {
+                throw new DaoException("Zero rows affected, expected at least one");
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation while deleting product");
+        }
+        return deletedRows;
     }
 
     private String normalizeUpc(String upc) {
