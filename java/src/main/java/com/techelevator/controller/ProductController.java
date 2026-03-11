@@ -11,12 +11,13 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @PreAuthorize("isAuthenticated()")
+@RequestMapping("/products")
 public class ProductController {
 
-    private ProductDao productDao;
-    private UserDao userDao;
+    private final ProductDao productDao;
+    private final UserDao userDao;
 
-    public ProductController (ProductDao productDao, UserDao userDao) {
+    public ProductController(ProductDao productDao, UserDao userDao) {
         this.productDao = productDao;
         this.userDao = userDao;
     }
@@ -26,25 +27,25 @@ public class ProductController {
         return productDao.createProduct(product);
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public Product getProductById(@PathVariable int id) {
         return productDao.getProductById(id);
     }
 
-    @GetMapping("/products")
-    public List<Product> getAllProducts() {
+    @GetMapping
+    public List<Product> getProducts(@RequestParam(required = false) String name,
+                                     @RequestParam(required = false) String category,
+                                     @RequestParam(required = false) String vendor) {
+        if (name != null && !name.isBlank()) {
+            return productDao.getProductsByName(name);
+        }
+        if (category != null) {
+            return productDao.getProductsByCategory(category);
+        }
+
+        if (vendor != null) {
+            return productDao.getProductsByVendor(vendor);
+        }
         return productDao.getAllProducts();
     }
-
-    @GetMapping("/products?name=trace")
-    public Product getProductByName(@RequestParam String name) {
-        return productDao.getProductByName(name);
-    }
-
-    @GetMapping("/products?categoryId={id}")
-    public List<Product> getProductsByCategoryId(@RequestParam int categoryId) {
-        return productDao.getProductsByCategory(categoryId);
-    }
-
-    
 }

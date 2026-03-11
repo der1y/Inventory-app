@@ -12,11 +12,11 @@ public interface ProductDao {
 
     List<Product> getAllProducts();
 
-    Product getProductByName(String name);
+    List<Product> getProductsByName(String name);
 
-    List<Product> getProductsByCategory(int categoryId);
+    List<Product> getProductsByCategory(String categoryName);
 
-    List<Product> getProductsByVendor(int vendorId);
+    List<Product> getProductsByVendor(String vendorName);
 
     Product updateProduct(Product product);
 

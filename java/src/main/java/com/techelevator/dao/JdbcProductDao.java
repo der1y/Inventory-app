@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,31 +85,33 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public Product getProductByName(String name) {
+    public List<Product> getProductsByName(String name) {
+        List<Product> matchingProducts = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE name ILIKE ?";
-
-        String searchString = "%" + name + "%";
+        String searchString = "%" + name.trim() + "%";
 
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, searchString);
 
-            if (results.next()) {
-                return mapRowToProduct(results);
+            while (results.next()) {
+                matchingProducts.add(mapRowToProduct(results));
             }
-            return null;
+            return matchingProducts;
         } catch (CannotGetJdbcConnectionException e) {
             throw new DaoException(ERROR_MESSAGE, e);
         }
     }
 
     @Override
-    public List<Product> getProductsByCategory(int categoryId) {
+    public List<Product> getProductsByCategory(String categoryName) {
         List<Product> productsByCategory = new ArrayList<>();
 
-        String sql = "SELECT * FROM products WHERE category_id = ?";
+        String sql = "SELECT p.* FROM products p " +
+                "JOIN categories c ON p.category_id = c.category_id " +
+                "WHERE LOWER(c.name) = LOWER(?)";
 
         try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, categoryId);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, categoryName);
 
             while (results.next()) {
                 productsByCategory.add(mapRowToProduct(results));
@@ -122,16 +123,16 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> getProductsByVendor(int vendorId) {
+    public List<Product> getProductsByVendor(String vendorName) {
         List<Product> productsByVendor = new ArrayList<>();
 
-        String sql = "SELECT * FROM vendor_product vp " +
-                "JOIN products p ON p.product_id = vp.product_id " +
-                "WHERE vendor_id = ? " +
-                "ORDER BY name;";
+        String sql = "SELECT p.* FROM products p " +
+                "JOIN vendor_product vp ON vp.product_id = p.product_id " +
+                "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
+                "WHERE LOWER(v.name) = LOWER(?)";
 
         try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, vendorId);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, vendorName);
 
             while (results.next()) {
                 productsByVendor.add(mapRowToProduct(results));
