@@ -39,11 +39,11 @@ public class ProductController {
         if (name != null && !name.isBlank()) {
             return productDao.getProductsByName(name);
         }
-        if (category != null) {
+        if (category != null && !category.isBlank()) {
             return productDao.getProductsByCategory(category);
         }
 
-        if (vendor != null) {
+        if (vendor != null && !vendor.isBlank()) {
             return productDao.getProductsByVendor(vendor);
         }
         return productDao.getAllProducts();
