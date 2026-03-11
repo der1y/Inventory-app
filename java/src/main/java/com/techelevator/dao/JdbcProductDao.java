@@ -85,6 +85,19 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
+    public List<Product> getProducts(String name, String category, String vendor) {
+        List<Product> matchingProducts = new ArrayList<>();
+        String nameSearchSQL = "SElECT * FROM products WHERE name ILIKE ?";
+        String vendorSearchSQL = "SELECT p.* FROM products p " +
+                                "JOIN vendor_product vp ON vp.product_id = p.product_id " +
+                                "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
+                                "WHERE LOWER(v.name) = LOWER(?)";
+        String categorySearchSQL = "SELECT p.* FROM products p " +
+                                "JOIN categories c ON p.category_id = c.category_id " +
+                                "WHERE LOWER(c.name) = LOWER(?)";
+    }
+
+    @Override
     public List<Product> getProductsByName(String name) {
         List<Product> matchingProducts = new ArrayList<>();
         String sql = "SELECT * FROM products WHERE name ILIKE ?";

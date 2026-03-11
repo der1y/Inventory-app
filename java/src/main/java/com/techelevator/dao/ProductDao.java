@@ -12,6 +12,8 @@ public interface ProductDao {
 
     List<Product> getAllProducts();
 
+    List<Product> getProducts(String name, String category, String vendor);
+
     List<Product> getProductsByName(String name);
 
     List<Product> getProductsByCategory(String categoryName);
