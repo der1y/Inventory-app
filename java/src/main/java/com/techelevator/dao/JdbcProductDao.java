@@ -85,9 +85,9 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> getProducts(String name, String category, String vendor) {
+    public List<Product> getProducts(String category, String vendor) {
         List<Product> matchingProducts = new ArrayList<>();
-        String nameSearchSQL = "SElECT * FROM products WHERE name ILIKE ?";
+
         String vendorSearchSQL = "SELECT p.* FROM products p " +
                                 "JOIN vendor_product vp ON vp.product_id = p.product_id " +
                                 "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
@@ -95,6 +95,25 @@ public class JdbcProductDao implements ProductDao {
         String categorySearchSQL = "SELECT p.* FROM products p " +
                                 "JOIN categories c ON p.category_id = c.category_id " +
                                 "WHERE LOWER(c.name) = LOWER(?)";
+
+        try {
+            if (vendor != null && !vendor.isBlank()) {
+                SqlRowSet vendorResults = jdbcTemplate.queryForRowSet(vendorSearchSQL, vendor);
+                while (vendorResults.next()) {
+                    matchingProducts.add(mapRowToProduct(vendorResults));
+                }
+            } else if (category != null && !category.isBlank()) {
+                SqlRowSet categoryResults = jdbcTemplate.queryForRowSet(categorySearchSQL, category);
+                while (categoryResults.next()) {
+                    matchingProducts.add(mapRowToProduct(categoryResults));
+                }
+            } else {
+                return getAllProducts();
+            }
+            return matchingProducts;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
+        }
     }
 
     @Override
