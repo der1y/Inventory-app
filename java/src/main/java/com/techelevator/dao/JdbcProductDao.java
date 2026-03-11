@@ -87,10 +87,12 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public Product getProductByName(String name) {
-        String sql = "SELECT * FROM products WHERE name = ?";
+        String sql = "SELECT * FROM products WHERE name ILIKE ?";
+
+        String searchString = "%" + name + "%";
 
         try {
-            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, name);
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql, searchString);
 
             if (results.next()) {
                 return mapRowToProduct(results);
