@@ -31,7 +31,7 @@ public class JdbcProductDao implements ProductDao {
 
         String upcToSave = normalizeUpc(product.getUpc());
         String insertProductSQL = "INSERT INTO products (upc, name, category_id, default_bottle_ml, is_active) " +
-                "VALUES (?, ?, ?, ?, ?) RETURNING product_id";
+                "VALUES (?, ?, ?, ?, ?) RETURNING product_id;";
 
         try {
             Integer newProductId = jdbcTemplate.queryForObject(insertProductSQL, Integer.class,
@@ -52,7 +52,7 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public Product getProductById(int productId) {
-        String sql = "SELECT * FROM products WHERE product_id = ?";
+        String sql = "SELECT * FROM products WHERE product_id = ?;";
         try {
             SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, productId);
 
@@ -69,7 +69,7 @@ public class JdbcProductDao implements ProductDao {
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
 
-        String sql = "SELECT * FROM products";
+        String sql = "SELECT * FROM products;";
 
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
@@ -85,22 +85,29 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> getProducts(String name, String category, String vendor) {
+    public List<Product> getProductsByCategoryAndVendor(String category, String vendor) {
         List<Product> matchingProducts = new ArrayList<>();
-        String nameSearchSQL = "SElECT * FROM products WHERE name ILIKE ?";
-        String vendorSearchSQL = "SELECT p.* FROM products p " +
-                                "JOIN vendor_product vp ON vp.product_id = p.product_id " +
-                                "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
-                                "WHERE LOWER(v.name) = LOWER(?)";
-        String categorySearchSQL = "SELECT p.* FROM products p " +
-                                "JOIN categories c ON p.category_id = c.category_id " +
-                                "WHERE LOWER(c.name) = LOWER(?)";
+        String vendorCategorySearchSQL = "SELECT p.* FROM products p " +
+                "JOIN vendor_product vp ON vp.product_id = p.product_id " +
+                "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
+                "JOIN categories c ON p.category_id = c.category_id " +
+                "WHERE LOWER(v.name) = LOWER(?) AND LOWER(c.name) = LOWER(?);";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(vendorCategorySearchSQL, vendor, category);
+
+            while (results.next()) {
+                matchingProducts.add(mapRowToProduct(results));
+            }
+            return matchingProducts;
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException(ERROR_MESSAGE, e);
+        }
     }
 
     @Override
     public List<Product> getProductsByName(String name) {
         List<Product> matchingProducts = new ArrayList<>();
-        String sql = "SELECT * FROM products WHERE name ILIKE ?";
+        String sql = "SELECT * FROM products WHERE name ILIKE ?;";
         String searchString = "%" + name.trim() + "%";
 
         try {
@@ -121,7 +128,7 @@ public class JdbcProductDao implements ProductDao {
 
         String sql = "SELECT p.* FROM products p " +
                 "JOIN categories c ON p.category_id = c.category_id " +
-                "WHERE LOWER(c.name) = LOWER(?)";
+                "WHERE LOWER(c.name) = LOWER(?);";
 
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, categoryName);
@@ -142,7 +149,7 @@ public class JdbcProductDao implements ProductDao {
         String sql = "SELECT p.* FROM products p " +
                 "JOIN vendor_product vp ON vp.product_id = p.product_id " +
                 "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
-                "WHERE LOWER(v.name) = LOWER(?)";
+                "WHERE LOWER(v.name) = LOWER(?);";
 
         try {
             SqlRowSet results = jdbcTemplate.queryForRowSet(sql, vendorName);
@@ -163,7 +170,7 @@ public class JdbcProductDao implements ProductDao {
 
         String updateProductSQL = "UPDATE products " +
                 "SET upc = ?, name = ?, category_id = ?, default_bottle_ml = ?, is_active = ? " +
-                "WHERE product_id = ?";
+                "WHERE product_id = ?;";
 
         try {
             int updatedRows = jdbcTemplate.update(updateProductSQL, product.getUpc(), product.getName(),
@@ -183,7 +190,7 @@ public class JdbcProductDao implements ProductDao {
 
     @Override
     public int deleteProductById(int productId) {
-        String deleteProduct = "DELETE FROM products WHERE product_id = ?";
+        String deleteProduct = "DELETE FROM products WHERE product_id = ?;";
         int deletedRows;
         try {
             deletedRows = jdbcTemplate.update(deleteProduct, productId);

@@ -39,13 +39,14 @@ public class ProductController {
         if (name != null && !name.isBlank()) {
             return productDao.getProductsByName(name);
         }
-        if (category != null && !category.isBlank()) {
-            return productDao.getProductsByCategory(category);
-        }
-
-        if (vendor != null && !vendor.isBlank()) {
+        if ((category != null && !category.isBlank() && vendor != null && !vendor.isBlank())) {
+            return productDao.getProductsByCategoryAndVendor(vendor, category);
+        } else if (vendor != null && !vendor.isBlank()) {
             return productDao.getProductsByVendor(vendor);
+        } else if (category != null && !category.isBlank()) {
+            return productDao.getProductsByCategory(category);
+        } else {
+            return productDao.getAllProducts();
         }
-        return productDao.getAllProducts();
     }
 }
