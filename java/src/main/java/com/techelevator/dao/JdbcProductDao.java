@@ -2,7 +2,6 @@ package com.techelevator.dao;
 
 import com.techelevator.exception.DaoException;
 import com.techelevator.model.Product;
-import org.apache.tomcat.util.bcel.Const;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -85,30 +84,46 @@ public class JdbcProductDao implements ProductDao {
     }
 
     @Override
-    public List<Product> getProducts(String category, String vendor) {
+    public List<Product> getProducts(String name, String category, String vendor) {
         List<Product> matchingProducts = new ArrayList<>();
+        String trimmedName = name == null ? null : name.trim();
+        String trimmedCategory = category == null ? null : category.trim();
+        String trimmedVendor = vendor == null ? null : vendor.trim();
+        boolean hasName = trimmedName != null && !trimmedName.isBlank();
+        boolean hasCategory = trimmedCategory != null && !trimmedCategory.isBlank();
+        boolean hasVendor = trimmedVendor != null && !trimmedVendor.isBlank();
 
-        String vendorSearchSQL = "SELECT p.* FROM products p " +
-                                "JOIN vendor_product vp ON vp.product_id = p.product_id " +
-                                "JOIN vendors v ON v.vendor_id = vp.vendor_id " +
-                                "WHERE LOWER(v.name) = LOWER(?)";
-        String categorySearchSQL = "SELECT p.* FROM products p " +
-                                "JOIN categories c ON p.category_id = c.category_id " +
-                                "WHERE LOWER(c.name) = LOWER(?)";
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT p.* FROM products p");
+        List<Object> params = new ArrayList<>();
+        List<String> filters = new ArrayList<>();
+
+        if (hasCategory) {
+            sql.append(" JOIN categories c ON p.category_id = c.category_id");
+            filters.add("LOWER(c.name) = LOWER(?)");
+            params.add(trimmedCategory);
+        }
+
+        if (hasVendor) {
+            sql.append(" JOIN vendor_product vp ON vp.product_id = p.product_id");
+            sql.append(" JOIN vendors v ON v.vendor_id = vp.vendor_id");
+            filters.add("LOWER(v.name) = LOWER(?)");
+            params.add(trimmedVendor);
+        }
+
+        if (hasName) {
+            filters.add("p.name ILIKE ?");
+            params.add("%" + trimmedName + "%");
+        }
+
+        if (!filters.isEmpty()) {
+            sql.append(" WHERE ").append(String.join(" AND ", filters));
+        }
 
         try {
-            if (vendor != null && !vendor.isBlank()) {
-                SqlRowSet vendorResults = jdbcTemplate.queryForRowSet(vendorSearchSQL, vendor);
-                while (vendorResults.next()) {
-                    matchingProducts.add(mapRowToProduct(vendorResults));
-                }
-            } else if (category != null && !category.isBlank()) {
-                SqlRowSet categoryResults = jdbcTemplate.queryForRowSet(categorySearchSQL, category);
-                while (categoryResults.next()) {
-                    matchingProducts.add(mapRowToProduct(categoryResults));
-                }
-            } else {
-                return getAllProducts();
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql.toString(), params.toArray());
+
+            while (results.next()) {
+                matchingProducts.add(mapRowToProduct(results));
             }
             return matchingProducts;
         } catch (CannotGetJdbcConnectionException e) {

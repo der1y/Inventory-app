@@ -36,16 +36,6 @@ public class ProductController {
     public List<Product> getProducts(@RequestParam(required = false) String name,
                                      @RequestParam(required = false) String category,
                                      @RequestParam(required = false) String vendor) {
-        if (name != null && !name.isBlank()) {
-            return productDao.getProductsByName(name);
-        }
-        if (category != null && !category.isBlank()) {
-            return productDao.getProductsByCategory(category);
-        }
-
-        if (vendor != null && !vendor.isBlank()) {
-            return productDao.getProductsByVendor(vendor);
-        }
-        return productDao.getAllProducts();
+        return productDao.getProducts(name, category, vendor);
     }
 }
