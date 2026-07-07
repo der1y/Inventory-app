@@ -38,4 +38,14 @@ public class ProductController {
                                      @RequestParam(required = false) String vendor) {
         return productDao.getProducts(name, category, vendor);
     }
+
+    @PutMapping
+    public Product updateProduct(@RequestParam Product product) {
+        return productDao.updateProduct(product);
+    }
+
+    @DeleteMapping
+    public int deleteProductById(@RequestParam int id) {
+        return productDao.deleteProductById(id);
+    }
 }

@@ -87,11 +87,9 @@ public class JdbcProductDao implements ProductDao {
     public List<Product> getProducts(String name, String category, String vendor) {
         List<Product> matchingProducts = new ArrayList<>();
         String trimmedName = name == null ? null : name.trim();
-        String trimmedCategory = category == null ? null : category.trim();
-        String trimmedVendor = vendor == null ? null : vendor.trim();
         boolean hasName = trimmedName != null && !trimmedName.isBlank();
-        boolean hasCategory = trimmedCategory != null && !trimmedCategory.isBlank();
-        boolean hasVendor = trimmedVendor != null && !trimmedVendor.isBlank();
+        boolean hasCategory = category != null && !category.isBlank();
+        boolean hasVendor = vendor != null && !vendor.isBlank();
 
         StringBuilder sql = new StringBuilder("SELECT DISTINCT p.* FROM products p");
         List<Object> params = new ArrayList<>();
@@ -100,14 +98,14 @@ public class JdbcProductDao implements ProductDao {
         if (hasCategory) {
             sql.append(" JOIN categories c ON p.category_id = c.category_id");
             filters.add("LOWER(c.name) = LOWER(?)");
-            params.add(trimmedCategory);
+            params.add(category);
         }
 
         if (hasVendor) {
             sql.append(" JOIN vendor_product vp ON vp.product_id = p.product_id");
             sql.append(" JOIN vendors v ON v.vendor_id = vp.vendor_id");
             filters.add("LOWER(v.name) = LOWER(?)");
-            params.add(trimmedVendor);
+            params.add(vendor);
         }
 
         if (hasName) {
