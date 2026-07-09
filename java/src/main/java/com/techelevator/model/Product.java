@@ -1,30 +1,40 @@
 package com.techelevator.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Product {
 
     private int id;
 
     private String upc;
     private String name;
-    private int categoryId;
-    private int default_bottle_ml;
-    private boolean is_active;
 
-    public Product(int id, String name, int categoryId, int default_bottle_ml, boolean is_active) {
+    // Java stays camelCase; @JsonProperty pins the snake_case JSON contract the
+    // client sends/expects (this endpoint's payloads use snake_case).
+    @JsonProperty("category_id")
+    private int categoryId;
+
+    @JsonProperty("default_bottle_ml")
+    private int defaultBottleMl;
+
+    @JsonProperty("is_active")
+    private boolean active;
+
+    public Product(int id, String name, int categoryId, int defaultBottleMl, boolean active) {
         this.id = id;
         this.name = name;
         this.categoryId = categoryId;
-        this.default_bottle_ml = default_bottle_ml;
-        this.is_active = is_active;
+        this.defaultBottleMl = defaultBottleMl;
+        this.active = active;
     }
 
-    public Product(int id, String upc, String name, int categoryId, int default_bottle_ml, boolean is_active) {
+    public Product(int id, String upc, String name, int categoryId, int defaultBottleMl, boolean active) {
         this.id = id;
         this.upc = upc;
         this.name = name;
         this.categoryId = categoryId;
-        this.default_bottle_ml = default_bottle_ml;
-        this.is_active = is_active;
+        this.defaultBottleMl = defaultBottleMl;
+        this.active = active;
     }
 
     public Product() {
@@ -63,20 +73,20 @@ public class Product {
         this.categoryId = categoryId;
     }
 
-    public int getDefault_bottle_ml() {
-        return default_bottle_ml;
+    public int getDefaultBottleMl() {
+        return defaultBottleMl;
     }
 
-    public void setDefault_bottle_ml(int default_bottle_ml) {
-        this.default_bottle_ml = default_bottle_ml;
+    public void setDefaultBottleMl(int defaultBottleMl) {
+        this.defaultBottleMl = defaultBottleMl;
     }
 
-    public boolean isIs_active() {
-        return is_active;
+    public boolean isActive() {
+        return active;
     }
 
-    public void setIs_active(boolean is_active) {
-        this.is_active = is_active;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
@@ -86,8 +96,8 @@ public class Product {
                 ", upc='" + upc + '\'' +
                 ", name='" + name + '\'' +
                 ", categoryId=" + categoryId +
-                ", default_bottle_ml=" + default_bottle_ml +
-                ", is_active=" + is_active +
+                ", defaultBottleMl=" + defaultBottleMl +
+                ", active=" + active +
                 '}';
     }
 }

@@ -37,8 +37,8 @@ public class JdbcProductDao implements ProductDao {
                     upcToSave,
                     product.getName(),
                     product.getCategoryId(),
-                    product.getDefault_bottle_ml(),
-                    product.isIs_active());
+                    product.getDefaultBottleMl(),
+                    product.isActive());
             product.setId(newProductId);
             product.setUpc(upcToSave);
             return product;
@@ -199,7 +199,7 @@ public class JdbcProductDao implements ProductDao {
 
         try {
             int updatedRows = jdbcTemplate.update(updateProductSQL, product.getUpc(), product.getName(),
-                    product.getCategoryId(), product.getDefault_bottle_ml(), product.isIs_active());
+                    product.getCategoryId(), product.getDefaultBottleMl(), product.isActive());
             if (updatedRows == 0) {
                 throw new DaoException("Zero rows affected, expected at least one");
             }
@@ -249,8 +249,8 @@ public class JdbcProductDao implements ProductDao {
 
         tempProduct.setName(set.getString("name"));
         tempProduct.setCategoryId(set.getInt("category_id"));
-        tempProduct.setDefault_bottle_ml(set.getInt("default_bottle_ml"));
-        tempProduct.setIs_active(set.getBoolean("is_active"));
+        tempProduct.setDefaultBottleMl(set.getInt("default_bottle_ml"));
+        tempProduct.setActive(set.getBoolean("is_active"));
         tempProduct.setId(set.getInt("product_id"));
         tempProduct.setUpc(set.getString("upc"));
 
